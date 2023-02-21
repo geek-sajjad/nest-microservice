@@ -1,7 +1,7 @@
 import { Inject, Injectable, OnModuleInit } from '@nestjs/common';
 import { ClientGrpc } from '@nestjs/microservices/interfaces';
 import { Observable } from 'rxjs';
-import { task } from './task';
+import { task } from './proto-interfaces/task-proto-interface';
 
 @Injectable()
 export class AppService implements OnModuleInit {

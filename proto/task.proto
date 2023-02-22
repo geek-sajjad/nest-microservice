@@ -4,20 +4,48 @@ package task;
 
 service TaskService {
   rpc Create(CreateTaskRequest) returns (Task);
+
   rpc FindOne(FindOneRequest) returns (Task);
+
+  rpc FindAll(Empty) returns (FindAllResponse);
+
+  rpc UpdateOne(UpdateOneRequest) returns (Task);
+
+  rpc DeleteOne(DeleteOneRequest) returns (Task);
 }
 
 message CreateTaskRequest{
-  string title = 1;
-  string description = 2;
+  required string title = 1;
+  required string description = 2;
+  optional string parentId = 3;
+}
+
+message FindOneRequest{
+  required string id = 1;
+}
+
+message DeleteOneRequest{
+  required string id = 1;
+}
+
+message Empty {
+
+}
+
+
+message UpdateOneRequest{
+  required string id = 1;
+  required string title = 2;
+  required string description = 3;
+  optional string parentId = 4;
 }
 
 message Task{
-  int32 id=1;
-  string title = 2;
-  string description = 3;
+  required string id = 1;
+  required string title = 2;
+  required string description = 3;
 }
 
-message FindOneRequest {
-  int32 id=1;
+message FindAllResponse{
+  repeated Task tasks =1;
 }

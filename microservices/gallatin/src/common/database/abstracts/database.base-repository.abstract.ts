@@ -11,6 +11,7 @@ import {
   QueryRunner,
   Repository,
 } from 'typeorm';
+
 import {
   IDatabaseCreateManyOptions,
   IDatabaseCreateOptions,
@@ -114,12 +115,12 @@ export abstract class DatabaseBaseRepositoryAbstract<T> {
   }
 
   async findOneById<Y = T>(
-    _id: string,
+    id: string,
     options?: IDatabaseFindOneOptions<QueryRunner>,
   ): Promise<Y> {
     const findOne: FindOneOptions<T> = {
       where: {
-        _id: _id,
+        id: id,
       } as FindOptionsWhere<any>,
     };
 
@@ -177,45 +178,6 @@ export abstract class DatabaseBaseRepositoryAbstract<T> {
     return this._repository.count(count) as any;
   }
 
-  async exists(
-    find: Record<string, any> | Record<string, any>[],
-    options?: IDatabaseExistOptions<QueryRunner>,
-  ): Promise<boolean> {
-    const findOne: FindOneOptions<T> = {
-      where: find,
-      select: {
-        _id: true,
-      } as FindOptionsSelect<any>,
-    };
-
-    if (options && options.withDeleted) {
-      findOne.withDeleted = true;
-    } else {
-      findOne.withDeleted = false;
-    }
-
-    if (options && options.join) {
-      findOne.relations =
-        typeof options.join === 'boolean'
-          ? this._joinOnFind
-          : (options.join as FindOptionsRelations<T>);
-    }
-
-    findOne.transaction = options && options.session ? true : false;
-
-    const exist: T = await this._repository.findOne(findOne);
-
-    return exist ? true : false;
-  }
-
-  async raw<N, R = string>(rawOperation: R): Promise<N[]> {
-    if (typeof rawOperation !== 'string') {
-      throw new Error('Must in string');
-    }
-
-    return this._repository.query(rawOperation);
-  }
-
   async create<N>(
     data: N,
     options?: IDatabaseCreateOptions<QueryRunner>,
@@ -232,12 +194,12 @@ export abstract class DatabaseBaseRepositoryAbstract<T> {
   }
 
   async updateOneById<N>(
-    _id: string,
+    id: string,
     data: N,
     options?: IDatabaseUpdateOptions<QueryRunner>,
   ): Promise<T> {
     const findOne: FindOneOptions = {
-      where: { _id } as FindOptionsWhere<any>,
+      where: { id } as FindOptionsWhere<any>,
       withDeleted: false,
     };
 
@@ -256,66 +218,14 @@ export abstract class DatabaseBaseRepositoryAbstract<T> {
     return this._repository.save(update, {
       transaction: options && options.session ? true : false,
     });
-  }
-
-  async updateOne<N>(
-    find: Record<string, any> | Record<string, any>[],
-    data: N,
-    options?: IDatabaseUpdateOptions<QueryRunner>,
-  ): Promise<T> {
-    const findOne: FindOneOptions = {
-      where: find as FindOptionsWhere<any>,
-      withDeleted: false,
-    };
-
-    if (options && options.join) {
-      findOne.relations =
-        typeof options.join === 'boolean'
-          ? this._joinOnFind
-          : (options.join as FindOptionsRelations<T>);
-    }
-
-    findOne.transaction = options && options.session ? true : false;
-
-    let update = await this._repository.findOne(findOne);
-    update = this._convertEntity(update, data);
-
-    return this._repository.save(update, {
-      transaction: options && options.session ? true : false,
-    });
-  }
-
-  async deleteOne(
-    find: Record<string, any> | Record<string, any>[],
-    options?: IDatabaseDeleteOptions<QueryRunner>,
-  ): Promise<T> {
-    const findOne: FindOneOptions = {
-      where: find as FindOptionsWhere<any>,
-    };
-
-    if (options && options.join) {
-      findOne.relations =
-        typeof options.join === 'boolean'
-          ? this._joinOnFind
-          : (options.join as FindOptionsRelations<T>);
-    }
-
-    findOne.transaction = options && options.session ? true : false;
-
-    const del = await this._repository.findOne(findOne);
-    await this._repository.remove(del, {
-      transaction: options && options.session ? true : false,
-    });
-
-    return del;
   }
 
   async deleteOneById(
-    _id: string,
+    id: string,
     options?: IDatabaseDeleteOptions<QueryRunner>,
   ): Promise<T> {
     const findOne: FindOneOptions = {
-      where: { _id } as FindOptionsWhere<any>,
+      where: { id } as FindOptionsWhere<any>,
     };
 
     if (options && options.join) {
@@ -361,32 +271,6 @@ export abstract class DatabaseBaseRepositoryAbstract<T> {
     return del;
   }
 
-  async softDeleteOne(
-    find: Record<string, any> | Record<string, any>[],
-    options?: IDatabaseSoftDeleteOptions<QueryRunner>,
-  ): Promise<T> {
-    const findOne: FindOneOptions = {
-      where: find as FindOptionsWhere<any>,
-      withDeleted: false,
-    };
-
-    if (options && options.join) {
-      findOne.relations =
-        typeof options.join === 'boolean'
-          ? this._joinOnFind
-          : (options.join as FindOptionsRelations<T>);
-    }
-
-    findOne.transaction = options && options.session ? true : false;
-
-    const del = await this._repository.findOne(findOne);
-    await this._repository.softRemove(del, {
-      transaction: options && options.session ? true : false,
-    });
-
-    return del;
-  }
-
   async restoreOneById(
     _id: string,
     options?: IDatabaseRestoreOptions<QueryRunner>,
@@ -411,264 +295,6 @@ export abstract class DatabaseBaseRepositoryAbstract<T> {
     });
 
     return rec;
-  }
-
-  async restoreOne(
-    find: Record<string, any> | Record<string, any>[],
-    options?: IDatabaseRestoreOptions<QueryRunner>,
-  ): Promise<T> {
-    const findOne: FindOneOptions = {
-      where: find as FindOptionsWhere<any>,
-      withDeleted: true,
-    };
-
-    if (options && options.join) {
-      findOne.relations =
-        typeof options.join === 'boolean'
-          ? this._joinOnFind
-          : (options.join as FindOptionsRelations<T>);
-    }
-
-    findOne.transaction = options && options.session ? true : false;
-
-    const rec = await this._repository.findOne(findOne);
-    await this._repository.recover(rec, {
-      transaction: options && options.session ? true : false,
-    });
-
-    return rec;
-  }
-
-  async createMany<N>(
-    data: N[],
-    options?: IDatabaseCreateManyOptions<QueryRunner>,
-  ): Promise<boolean> {
-    try {
-      const create = this._repository.create(data as any[]);
-      await this._repository.save(create, {
-        transaction: options && options.session ? true : false,
-      });
-      return true;
-    } catch (err: any) {
-      throw err;
-    }
-  }
-
-  async deleteManyByIds(
-    _id: string[],
-    options?: IDatabaseManyOptions<QueryRunner>,
-  ): Promise<boolean> {
-    const findAll: FindManyOptions<any> = {
-      where: { _id: In(_id) },
-      withDeleted: false,
-    };
-
-    if (options && options.join) {
-      findAll.relations =
-        typeof options.join === 'boolean'
-          ? this._joinOnFind
-          : (options.join as FindOptionsRelations<T>);
-    }
-
-    findAll.transaction = options && options.session ? true : false;
-
-    try {
-      const del = await this._repository.find(findAll);
-      await this._repository.remove(del, {
-        transaction: options && options.session ? true : false,
-      });
-
-      return true;
-    } catch (err: any) {
-      throw err;
-    }
-  }
-
-  async deleteMany(
-    find: Record<string, any> | Record<string, any>[],
-    options?: IDatabaseManyOptions<QueryRunner>,
-  ): Promise<boolean> {
-    const findAll: FindManyOptions<any> = {
-      where: find,
-      withDeleted: false,
-    };
-
-    if (options && options.join) {
-      findAll.relations =
-        typeof options.join === 'boolean'
-          ? this._joinOnFind
-          : (options.join as FindOptionsRelations<T>);
-    }
-
-    findAll.transaction = options && options.session ? true : false;
-
-    try {
-      const del = await this._repository.find(findAll);
-      await this._repository.remove(del, {
-        transaction: options && options.session ? true : false,
-      });
-
-      return true;
-    } catch (err: any) {
-      throw err;
-    }
-  }
-
-  async softDeleteManyByIds(
-    _id: string[],
-    options?: IDatabaseSoftDeleteManyOptions<QueryRunner>,
-  ): Promise<boolean> {
-    const findAll: FindManyOptions<any> = {
-      where: {
-        _id: In(_id),
-      },
-      withDeleted: false,
-    };
-
-    if (options && options.join) {
-      findAll.relations =
-        typeof options.join === 'boolean'
-          ? this._joinOnFind
-          : (options.join as FindOptionsRelations<T>);
-    }
-
-    findAll.transaction = options && options.session ? true : false;
-
-    try {
-      const del = await this._repository.find(findAll);
-      await this._repository.softRemove(del, {
-        transaction: options && options.session ? true : false,
-      });
-
-      return true;
-    } catch (err: any) {
-      throw err;
-    }
-  }
-
-  async softDeleteMany(
-    find: Record<string, any> | Record<string, any>[],
-    options?: IDatabaseSoftDeleteManyOptions<QueryRunner>,
-  ): Promise<boolean> {
-    const findAll: FindManyOptions<any> = {
-      where: find,
-      withDeleted: false,
-    };
-
-    if (options && options.join) {
-      findAll.relations =
-        typeof options.join === 'boolean'
-          ? this._joinOnFind
-          : (options.join as FindOptionsRelations<T>);
-    }
-
-    findAll.transaction = options && options.session ? true : false;
-
-    try {
-      const del = await this._repository.find(findAll);
-      await this._repository.softRemove(del, {
-        transaction: options && options.session ? true : false,
-      });
-
-      return true;
-    } catch (err: any) {
-      throw err;
-    }
-  }
-
-  async restoreManyByIds(
-    _id: string[],
-    options?: IDatabaseRestoreManyOptions<QueryRunner>,
-  ): Promise<boolean> {
-    const findAll: FindManyOptions<any> = {
-      where: {
-        _id: In(_id),
-      },
-      withDeleted: true,
-    };
-
-    if (options && options.join) {
-      findAll.relations =
-        typeof options.join === 'boolean'
-          ? this._joinOnFind
-          : (options.join as FindOptionsRelations<T>);
-    }
-
-    findAll.transaction = options && options.session ? true : false;
-
-    try {
-      const rec = await this._repository.find(findAll);
-      await this._repository.recover(rec, {
-        transaction: options && options.session ? true : false,
-      });
-
-      return true;
-    } catch (err: any) {
-      throw err;
-    }
-  }
-
-  async restoreMany(
-    find: Record<string, any> | Record<string, any>[],
-    options?: IDatabaseRestoreManyOptions<QueryRunner>,
-  ): Promise<boolean> {
-    const findAll: FindManyOptions<any> = {
-      where: find,
-      withDeleted: true,
-    };
-
-    if (options && options.join) {
-      findAll.relations =
-        typeof options.join === 'boolean'
-          ? this._joinOnFind
-          : (options.join as FindOptionsRelations<T>);
-    }
-
-    findAll.transaction = options && options.session ? true : false;
-
-    try {
-      const rec = await this._repository.find(findAll);
-      await this._repository.recover(rec, {
-        transaction: options && options.session ? true : false,
-      });
-
-      return true;
-    } catch (err: any) {
-      throw err;
-    }
-  }
-
-  async updateMany<N>(
-    find: Record<string, any> | Record<string, any>[],
-    data: N,
-    options?: IDatabaseManyOptions<QueryRunner>,
-  ): Promise<boolean> {
-    const findAll: FindManyOptions = {
-      where: find as FindOptionsWhere<any>,
-      withDeleted: false,
-    };
-
-    if (options && options.join) {
-      findAll.relations =
-        typeof options.join === 'boolean'
-          ? this._joinOnFind
-          : (options.join as FindOptionsRelations<T>);
-    }
-
-    findAll.transaction = options && options.session ? true : false;
-
-    try {
-      let update = await this._repository.find(findAll);
-      update = this._convertEntity(update, data);
-
-      await this._repository.save(update, {
-        transaction: options && options.session ? true : false,
-      });
-
-      return true;
-    } catch (err: any) {
-      throw err;
-    }
   }
 
   async model<N = T>(): Promise<N> {

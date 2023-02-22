@@ -7,6 +7,8 @@ import {
   IDatabaseUpdateOptions,
 } from 'src/common/database/interfaces/database.interface';
 import { QueryRunner } from 'typeorm';
+import { CreateTaskDto } from '../dtos/create-task.dto';
+import { UpdateTaskDto } from '../dtos/update-task.dto';
 import { TaskEntity } from '../repository/entities/task.entity';
 
 export interface ITaskService {
@@ -31,13 +33,13 @@ export interface ITaskService {
   ): Promise<number>;
 
   create(
-    data: CreateTaskDto, //TODO set create task dto here...
+    data: CreateTaskDto,
     options?: IDatabaseCreateOptions<QueryRunner>,
   ): Promise<TaskEntity>;
 
   updateOneById(
     id: string,
-    data: UpdateTaskDto, //TODO set updateTaskDto here...
+    data: UpdateTaskDto,
     options?: IDatabaseUpdateOptions<QueryRunner>,
   ): Promise<TaskEntity>;
 

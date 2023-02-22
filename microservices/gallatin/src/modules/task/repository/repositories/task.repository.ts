@@ -8,7 +8,7 @@ import { TaskEntity } from '../entities/task.entity';
 @Injectable()
 export class TaskRepository extends DatabaseBaseRepositoryAbstract<TaskEntity> {
   constructor(
-    @DatabaseModel(TaskEntity.name, DATABASE_CONNECTION_NAME)
+    @DatabaseModel(TaskEntity, DATABASE_CONNECTION_NAME)
     private readonly taskRepository: Repository<TaskEntity>,
   ) {
     super(taskRepository);

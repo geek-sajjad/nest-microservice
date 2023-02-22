@@ -1,3 +1,4 @@
+import { Injectable } from '@nestjs/common/decorators';
 import {
   IDatabaseFindAllOptions,
   IDatabaseCreateOptions,
@@ -13,6 +14,7 @@ import { ITaskService } from '../interfaces/task.service.interface';
 import { TaskEntity } from '../repository/entities/task.entity';
 import { TaskRepository } from '../repository/repositories/task.repository';
 
+@Injectable()
 export class TaskService implements ITaskService {
   constructor(private readonly taskRepository: TaskRepository) {}
 

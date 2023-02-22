@@ -1,4 +1,10 @@
-import { IsNotEmpty, IsString, IsUUID, MaxLength } from 'class-validator';
+import {
+  IsNotEmpty,
+  IsOptional,
+  IsString,
+  IsUUID,
+  MaxLength,
+} from 'class-validator';
 
 export class CreateTaskDto {
   @IsString()
@@ -12,5 +18,6 @@ export class CreateTaskDto {
   readonly description: string;
 
   @IsUUID('4') //TODO check the uuid versions
-  readonly parentId: string;
+  @IsOptional()
+  readonly parentId?: string;
 }

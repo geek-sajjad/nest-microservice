@@ -1,18 +1,20 @@
 import { Controller } from '@nestjs/common';
 import { GrpcMethod } from '@nestjs/microservices';
+import { TaskService } from '../services/task.service';
 
 @Controller()
-export class UserController {
+export class TaskController {
+  constructor(private readonly taskService: TaskService) {}
   // TODO refactor UserController and Grpc Methods
   @GrpcMethod('TaskService', 'Create')
-  create(data: any) {
+  async create(data: any) {
     console.log(data);
-    console.log('creating task....');
-    return {
-      id: 'sdfdf',
-      title: 'sfsfsf',
-      description: 'dfdfgd',
-    };
+    const task = await this.taskService.create({
+      title: data.title,
+      description: data.description,
+    });
+
+    return task;
   }
 
   @GrpcMethod('TaskService', 'FindOne')

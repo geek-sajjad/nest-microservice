@@ -7,10 +7,11 @@ export class AppController {
   // constructor(private readonly appService: AppService) {}
 
   @GrpcMethod('TaskService', 'Create')
-  create() {
+  create(data: any) {
+    console.log(data);
     console.log('creating task....');
     return {
-      id: 23,
+      id: 'sdfdf',
       title: 'sfsfsf',
       description: 'dfdfgd',
     };
@@ -19,20 +20,49 @@ export class AppController {
   @GrpcMethod('TaskService', 'FindOne')
   findOne() {
     console.log('finding task....');
+    return {
+      id: 'sdfdf',
+      title: 'sfsfsf',
+      description: 'dfdfgd',
+    };
   }
 
   @GrpcMethod('TaskService', 'FindAll')
   findAll() {
     console.log('finding all task....');
+    return {
+      tasks: [
+        {
+          id: 'sdfdf',
+          title: 'sfsfsf',
+          description: 'dfdfgd',
+        },
+        {
+          id: 'sdfdf',
+          title: 'sfsfsf',
+          description: 'dfdfgd',
+        },
+      ],
+    };
   }
 
-  @GrpcMethod('TaskService', 'Update')
+  @GrpcMethod('TaskService', 'UpdateOne')
   update() {
     console.log('updating task....');
+    return {
+      id: 'sdfdf',
+      title: 'sfsfsf',
+      description: 'dfdfgd',
+    };
   }
 
-  @GrpcMethod('TaskService', 'Delete')
+  @GrpcMethod('TaskService', 'DeleteOne')
   delete() {
     console.log('deleting task....');
+    return {
+      id: 'sdfdf',
+      title: 'sfsfsf',
+      description: 'dfdfgd',
+    };
   }
 }

@@ -8,8 +8,11 @@ import {
   Post,
   Put,
   Query,
+  UseFilters,
 } from '@nestjs/common';
+import { BaseRpcExceptionFilter } from '@nestjs/microservices';
 import { Observable } from 'rxjs';
+import { ExceptionFilter } from 'src/exceptions/rpc-exception.filter';
 import { task } from 'src/proto-interfaces/task-proto-interface';
 import { TaskCreateRequestDto } from './dtos/task-create-request.dto';
 import { TaskUpdateRequestDto } from './dtos/task-update-request.dto';
@@ -42,7 +45,7 @@ export class TaskController {
   @Post()
   create(
     @Body() taskCreateRequestDto: TaskCreateRequestDto,
-  ): Observable<task.Task> {
+  ): Promise<task.Task> {
     return this.taskService.create(taskCreateRequestDto);
   }
 

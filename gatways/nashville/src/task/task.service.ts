@@ -4,6 +4,7 @@ import {
   NotFoundException,
   OnModuleInit,
 } from '@nestjs/common';
+import { BadRequestException } from '@nestjs/common/exceptions';
 import { ClientGrpc } from '@nestjs/microservices';
 import { firstValueFrom, Observable } from 'rxjs';
 import { task } from 'src/proto-interfaces/task-proto-interface';
@@ -72,10 +73,17 @@ export class TaskService implements OnModuleInit {
     }
   }
 
-  create(taskCreateRequestDto: TaskCreateRequestDto): Observable<task.Task> {
-    return this.taskServiceClient.create({
-      ...taskCreateRequestDto,
-    });
+  async create(taskCreateRequestDto: TaskCreateRequestDto): Promise<task.Task> {
+    try {
+      const res = await firstValueFrom(
+        this.taskServiceClient.create({
+          ...taskCreateRequestDto,
+        }),
+      );
+      return res;
+    } catch (error) {
+      throw new BadRequestException(error.message);
+    }
   }
 
   async delete(id: string): Promise<task.Task> {

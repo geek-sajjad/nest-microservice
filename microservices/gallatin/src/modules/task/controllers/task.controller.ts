@@ -1,8 +1,12 @@
 import { Metadata, ServerUnaryCall } from '@grpc/grpc-js';
 import { BadRequestException, Controller } from '@nestjs/common';
-import { UsePipes } from '@nestjs/common/decorators';
+import { UseFilters, UsePipes } from '@nestjs/common/decorators';
 import { ValidationPipe } from '@nestjs/common/pipes';
-import { GrpcMethod } from '@nestjs/microservices';
+import {
+  BaseRpcExceptionFilter,
+  GrpcMethod,
+  RpcException,
+} from '@nestjs/microservices';
 import { PaginationService } from 'src/common/pagination/services/pagination.service';
 import { TaskListDto } from '../dtos/task-list.dto';
 import { ExtractRequestParamGrpcPipe } from '../pipes/extract-request-param-grpc.pipe';
@@ -19,21 +23,25 @@ export class TaskController {
   // TODO refactor TaskController and Grpc Methods
   @GrpcMethod('TaskService', 'Create')
   async create(data: any) {
-    const parentTask: TaskEntity = await this.taskService.findOneById(
-      '2a8092d8-86c7-43cd-bb16-c2deb682896b',
-    );
-    if (!parentTask) throw new BadRequestException('parent id is not valid');
-
+    const { parentId } = data;
     const task = await this.taskService.create({
       title: data.title,
       description: data.description,
     });
 
-    task.parent = parentTask;
+    if (parentId) {
+      const parentTask: TaskEntity = await this.taskService.findOneById(
+        parentId,
+      );
+      if (!parentTask) throw new RpcException('parent id is not valid');
 
-    const taskRepo = this.taskService.repository();
+      task.parent = parentTask;
 
-    await taskRepo.save(task);
+      const taskRepo = this.taskService.repository();
+
+      await taskRepo.save(task);
+    }
+
     return task;
   }
 

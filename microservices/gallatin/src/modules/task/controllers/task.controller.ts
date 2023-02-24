@@ -8,8 +8,10 @@ import {
   RpcException,
 } from '@nestjs/microservices';
 import { PaginationService } from 'src/common/pagination/services/pagination.service';
+import { CreateTaskDto } from '../dtos/create-task.dto';
 import { TaskListDto } from '../dtos/task-list.dto';
 import { ExtractRequestParamGrpcPipe } from '../pipes/extract-request-param-grpc.pipe';
+import { TransformParentIdPipe } from '../pipes/transform-parent-id.pipe';
 import { TaskEntity } from '../repository/entities/task.entity';
 import { TaskService } from '../services/task.service';
 
@@ -21,17 +23,23 @@ export class TaskController {
     private readonly paginationService: PaginationService,
   ) {}
   // TODO refactor TaskController and Grpc Methods
+  @UsePipes(
+    new TransformParentIdPipe(),
+    new ValidationPipe({
+      transform: true,
+    }),
+  )
   @GrpcMethod('TaskService', 'Create')
-  async create(data: any) {
-    const { parentId } = data;
+  async create(data: CreateTaskDto) {
+    const { parent_id } = data;
     const task = await this.taskService.create({
       title: data.title,
       description: data.description,
     });
 
-    if (parentId) {
+    if (parent_id) {
       const parentTask: TaskEntity = await this.taskService.findOneById(
-        parentId,
+        parent_id,
       );
       if (!parentTask) throw new RpcException('parent id is not valid');
 

@@ -1,6 +1,7 @@
 import { Module } from '@nestjs/common';
 import { ClientsModule, Transport } from '@nestjs/microservices';
 import { join } from 'path';
+import { TaskGateWay } from './gateways/task.gateway';
 import { TaskController } from './task.controller';
 import { TaskService } from './task.service';
 
@@ -24,7 +25,7 @@ import { TaskService } from './task.service';
       },
     ]),
   ],
-  providers: [TaskService],
+  providers: [TaskService, TaskGateWay],
   controllers: [TaskController],
   // exports: [],
 })

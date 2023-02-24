@@ -17,7 +17,7 @@ export class CreateTaskDto {
   @MaxLength(300)
   readonly description: string;
 
-  // @IsUUID('4') //TODO check the uuid versions
-  // @IsOptional()
-  // readonly parent_id?: string;
+  @IsUUID('4') //TODO check the uuid versions
+  @IsOptional()
+  readonly parent_id?: string;
 }

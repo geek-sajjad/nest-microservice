@@ -39,13 +39,13 @@ export class DatabaseOptionsService implements IDatabaseOptionsService {
       type: 'postgres',
       host: this.host,
       port: this.port,
+      database: this.database,
       username: this.user,
       password: this.password,
       retryDelay: 5000,
       logging: this.env === 'production' ? false : this.debug ? true : false,
       keepConnectionAlive: this.env === 'production' ? true : false,
-      // synchronize: this.env === 'production' ? false : true,
-      synchronize: false,
+      synchronize: this.env === 'production' ? false : true,
       entities: [
         __dirname +
           '/../../../{common,modules}/**/**/repository/entities/*.entity{.ts,.js}',

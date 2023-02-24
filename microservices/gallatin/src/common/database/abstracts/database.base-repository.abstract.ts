@@ -246,11 +246,11 @@ export abstract class DatabaseBaseRepositoryAbstract<T> {
   }
 
   async softDeleteOneById(
-    _id: string,
+    id: string,
     options?: IDatabaseSoftDeleteOptions<QueryRunner>,
   ): Promise<T> {
     const findOne: FindOneOptions = {
-      where: { _id } as FindOptionsWhere<any>,
+      where: { id } as FindOptionsWhere<any>,
       withDeleted: false,
     };
 

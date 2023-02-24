@@ -18,7 +18,7 @@ export namespace task {
       ...rest: any[]
     ): Observable<Task>;
     findAll(
-      data: Empty,
+      data: FindAllRequest,
       metadata?: Metadata,
       ...rest: any[]
     ): Observable<FindAllResponse>;
@@ -46,6 +46,14 @@ export namespace task {
   }
   // tslint:disable-next-line:no-empty-interface
   export interface Empty {}
+  export interface FindAllRequest {
+    findAllRequestQueryParam?: task.FindAllRequestQueryParam;
+  }
+  export interface FindAllRequestQueryParam {
+    page?: string;
+    perPage?: string;
+    sort?: string;
+  }
   export interface UpdateOneRequest {
     id?: string;
     title?: string;
@@ -58,6 +66,11 @@ export namespace task {
     description?: string;
   }
   export interface FindAllResponse {
-    tasks?: task.Task[];
+    totalPage?: number;
+    totalData?: number;
+    currentPage?: number;
+    perPage?: number;
+    availableSort?: string[];
+    data?: task.Task[];
   }
 }

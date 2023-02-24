@@ -50,7 +50,6 @@ import * as Joi from 'joi';
       inject: [DatabaseOptionsService],
       imports: [DatabaseOptionsModule],
       useFactory: (databaseOptionsService: DatabaseOptionsService) => {
-        console.log(databaseOptionsService.createOptions());
         return databaseOptionsService.createOptions();
       },
     }),

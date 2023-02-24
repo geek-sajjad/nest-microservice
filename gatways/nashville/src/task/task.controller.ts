@@ -4,13 +4,15 @@ import {
   Delete,
   Get,
   Param,
+  ParseUUIDPipe,
   Post,
   Put,
+  Query,
 } from '@nestjs/common';
 import { Observable } from 'rxjs';
 import { task } from 'src/proto-interfaces/task-proto-interface';
-import { CreateTaskRequestDto } from './dtos/create-task-request.dto';
-import { UpdateTaskRequestDto } from './dtos/update-task-request.dto';
+import { TaskCreateRequestDto } from './dtos/task-create-request.dto';
+import { TaskUpdateRequestDto } from './dtos/task-update-request.dto';
 import { TaskService } from './task.service';
 
 @Controller('task')
@@ -18,32 +20,32 @@ export class TaskController {
   constructor(private readonly taskService: TaskService) {}
 
   @Get('')
-  findAll() {
-    return this.taskService.findAll();
+  findAll(@Query() query: any) {
+    return this.taskService.findAll(query);
   }
 
   @Get(':id')
-  findOne(@Param('id') id: string) {
+  findOne(@Param('id', ParseUUIDPipe) id: string) {
     return this.taskService.findOne(id);
   }
 
-  @Post('create')
+  @Post()
   create(
-    @Body() createTaskRequestDto: CreateTaskRequestDto,
+    @Body() taskCreateRequestDto: TaskCreateRequestDto,
   ): Observable<task.Task> {
-    return this.taskService.create(createTaskRequestDto);
+    return this.taskService.create(taskCreateRequestDto);
   }
 
   @Put(':id')
   updateOne(
-    @Param('id') id: string,
-    @Body() updateTaskRequestDto: UpdateTaskRequestDto,
+    @Param('id', ParseUUIDPipe) id: string,
+    @Body() taskUpdateRequestDto: TaskUpdateRequestDto,
   ) {
-    return this.taskService.update(id, updateTaskRequestDto);
+    return this.taskService.update(id, taskUpdateRequestDto);
   }
 
   @Delete(':id')
-  delete(@Param('id') id: string) {
+  delete(@Param('id', ParseUUIDPipe) id: string) {
     return this.taskService.delete(id);
   }
 }

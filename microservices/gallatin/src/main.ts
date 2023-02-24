@@ -1,3 +1,4 @@
+import { ValidationPipe } from '@nestjs/common/pipes';
 import { NestFactory } from '@nestjs/core';
 import { MicroserviceOptions } from '@nestjs/microservices';
 import { Transport } from '@nestjs/microservices/enums';
@@ -15,6 +16,7 @@ async function bootstrap() {
       },
     },
   );
+
   await app.listen();
 }
 bootstrap();

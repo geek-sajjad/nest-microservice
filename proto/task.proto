@@ -7,7 +7,7 @@ service TaskService {
 
   rpc FindOne(FindOneRequest) returns (Task);
 
-  rpc FindAll(Empty) returns (FindAllResponse);
+  rpc FindAll(FindAllRequest) returns (FindAllResponse);
 
   rpc UpdateOne(UpdateOneRequest) returns (Task);
 
@@ -32,6 +32,16 @@ message Empty {
 
 }
 
+message FindAllRequest {
+  FindAllRequestQueryParam findAllRequestQueryParam =1;
+}
+
+message FindAllRequestQueryParam {
+  optional string page = 1;
+  optional string perPage = 2;
+  optional string sort = 3;
+}
+
 
 message UpdateOneRequest{
   required string id = 1;
@@ -47,5 +57,10 @@ message Task{
 }
 
 message FindAllResponse{
-  repeated Task tasks =1;
+  int32 totalPage = 1;
+  int32 totalData = 2;
+  int32 currentPage = 3;
+  int32 perPage = 4;
+  repeated string availableSort = 5;
+  repeated Task data =7;
 }

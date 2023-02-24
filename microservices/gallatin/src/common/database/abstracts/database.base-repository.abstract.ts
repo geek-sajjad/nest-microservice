@@ -10,6 +10,7 @@ import {
   In,
   QueryRunner,
   Repository,
+  SelectQueryBuilder,
 } from 'typeorm';
 
 import {
@@ -183,8 +184,8 @@ export abstract class DatabaseBaseRepositoryAbstract<T> {
     options?: IDatabaseCreateOptions<QueryRunner>,
   ): Promise<T> {
     const dataCreate: Record<string, any> = data;
-    if (options && options._id) {
-      dataCreate._id = options._id;
+    if (options && options.id) {
+      dataCreate.id = options.id;
     }
 
     const create = this._repository.create(dataCreate as T);
@@ -272,11 +273,11 @@ export abstract class DatabaseBaseRepositoryAbstract<T> {
   }
 
   async restoreOneById(
-    _id: string,
+    id: string,
     options?: IDatabaseRestoreOptions<QueryRunner>,
   ): Promise<T> {
     const findOne: FindOneOptions = {
-      where: { _id } as FindOptionsWhere<any>,
+      where: { id } as FindOptionsWhere<any>,
       withDeleted: true,
     };
 
@@ -297,8 +298,8 @@ export abstract class DatabaseBaseRepositoryAbstract<T> {
     return rec;
   }
 
-  async model<N = T>(): Promise<N> {
-    return this._repository.createQueryBuilder() as N;
+  repository(): Repository<T> {
+    return this._repository;
   }
 
   private _convertToObjectOfBoolean(

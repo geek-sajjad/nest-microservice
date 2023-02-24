@@ -17,6 +17,16 @@ export namespace task {
       metadata?: Metadata,
       ...rest: any[]
     ): Observable<Task>;
+    findOneWithParent(
+      data: FindOneRequest,
+      metadata?: Metadata,
+      ...rest: any[]
+    ): Observable<TaskWithParent>;
+    findOneWithChild(
+      data: FindOneRequest,
+      metadata?: Metadata,
+      ...rest: any[]
+    ): Observable<TaskWithChild>;
     findAll(
       data: FindAllRequest,
       metadata?: Metadata,
@@ -72,5 +82,17 @@ export namespace task {
     perPage?: number;
     availableSort?: string[];
     data?: task.Task[];
+  }
+  export interface TaskWithParent {
+    id?: string;
+    title?: string;
+    description?: string;
+    parent?: task.Task;
+  }
+  export interface TaskWithChild {
+    id?: string;
+    title?: string;
+    description?: string;
+    child?: task.Task;
   }
 }

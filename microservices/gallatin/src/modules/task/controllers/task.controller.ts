@@ -3,14 +3,13 @@ import { BadRequestException, Controller } from '@nestjs/common';
 import { UsePipes } from '@nestjs/common/decorators';
 import { ValidationPipe } from '@nestjs/common/pipes';
 import { GrpcMethod } from '@nestjs/microservices';
-import { plainToClass } from 'class-transformer';
-import { ENUM_PAGINATION_SORT_TYPE } from 'src/common/pagination/constants/pagination.enum.constant';
 import { PaginationService } from 'src/common/pagination/services/pagination.service';
 import { TaskListDto } from '../dtos/task-list.dto';
 import { ExtractRequestParamGrpcPipe } from '../pipes/extract-request-param-grpc.pipe';
 import { TaskEntity } from '../repository/entities/task.entity';
 import { TaskService } from '../services/task.service';
 
+// TODO serialize all data before sending result
 @Controller()
 export class TaskController {
   constructor(
@@ -20,12 +19,21 @@ export class TaskController {
   // TODO refactor TaskController and Grpc Methods
   @GrpcMethod('TaskService', 'Create')
   async create(data: any) {
-    console.log(data);
+    const parentTask: TaskEntity = await this.taskService.findOneById(
+      '2a8092d8-86c7-43cd-bb16-c2deb682896b',
+    );
+    if (!parentTask) throw new BadRequestException('parent id is not valid');
+
     const task = await this.taskService.create({
       title: data.title,
       description: data.description,
     });
 
+    task.parent = parentTask;
+
+    const taskRepo = this.taskService.repository();
+
+    await taskRepo.save(task);
     return task;
   }
 
@@ -39,6 +47,28 @@ export class TaskController {
 
     const task: TaskEntity = await this.taskService.findOneById(id);
     return task;
+  }
+
+  @GrpcMethod('TaskService', 'FindOneWithParent')
+  async findOneWithParent(
+    data: any,
+    metadata: Metadata,
+    call: ServerUnaryCall<any, any>,
+  ) {
+    const { id } = data;
+    const result = await this.taskService.findOneByIdWithParent(id);
+    return result;
+  }
+
+  @GrpcMethod('TaskService', 'FindOneWithChild')
+  async findOneWithChild(
+    data: any,
+    metadata: Metadata,
+    call: ServerUnaryCall<any, any>,
+  ) {
+    const { id } = data;
+    const result = await this.taskService.findOneByIdWithChild(id);
+    return result;
   }
 
   @UsePipes(
@@ -84,7 +114,7 @@ export class TaskController {
       data: tasks,
     };
   }
-
+  // TODO validate data
   @GrpcMethod('TaskService', 'UpdateOne')
   update(data: any, metadata: Metadata, call: ServerUnaryCall<any, any>) {
     const { title, id, description, parentId } = data;

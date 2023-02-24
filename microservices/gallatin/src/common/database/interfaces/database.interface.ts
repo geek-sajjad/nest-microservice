@@ -31,7 +31,7 @@ export interface IDatabaseFindAllOptions<T = any>
 
 export interface IDatabaseCreateOptions<T = any>
   extends Omit<IDatabaseOptions<T>, 'withDeleted' | 'join'> {
-  _id?: string;
+  id?: string;
 }
 
 // exist

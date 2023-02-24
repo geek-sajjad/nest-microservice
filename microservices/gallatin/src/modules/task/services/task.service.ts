@@ -7,7 +7,7 @@ import {
   IDatabaseSoftDeleteOptions,
   IDatabaseRestoreOptions,
 } from 'src/common/database/interfaces/database.interface';
-import { QueryRunner } from 'typeorm';
+import { QueryRunner, Repository } from 'typeorm';
 import { CreateTaskDto } from '../dtos/create-task.dto';
 import { UpdateTaskDto } from '../dtos/update-task.dto';
 import { ITaskService } from '../interfaces/task.service.interface';
@@ -32,6 +32,14 @@ export class TaskService implements ITaskService {
     return this.taskRepository.findOneById(id, options);
   }
 
+  findOneByIdWithParent(id: string) {
+    return this.taskRepository.findOneByIdWithParent(id);
+  }
+
+  async findOneByIdWithChild(id: string) {
+    return this.taskRepository.findOneByIdWithChild(id);
+  }
+
   findOne(
     find: Record<string, any>,
     options?: IDatabaseFindAllOptions<QueryRunner>,
@@ -50,6 +58,7 @@ export class TaskService implements ITaskService {
     data: CreateTaskDto,
     options?: IDatabaseCreateOptions<QueryRunner>,
   ): Promise<TaskEntity> {
+    // add limit to how deep the graph can grow
     return this.taskRepository.create<CreateTaskDto>(data, options);
   }
 
@@ -80,5 +89,9 @@ export class TaskService implements ITaskService {
     options?: IDatabaseRestoreOptions<QueryRunner>,
   ): Promise<TaskEntity> {
     return this.taskRepository.restoreOneById(id, options);
+  }
+
+  repository(): Repository<TaskEntity> {
+    return this.taskRepository.repository();
   }
 }

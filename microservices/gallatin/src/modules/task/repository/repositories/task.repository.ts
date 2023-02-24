@@ -13,4 +13,27 @@ export class TaskRepository extends DatabaseBaseRepositoryAbstract<TaskEntity> {
   ) {
     super(taskRepository);
   }
+
+  findOneByIdWithParent(id: string) {
+    return this._repository
+      .createQueryBuilder('task')
+      .where('task.id = :id', { id })
+      .innerJoinAndSelect('task.parent', 'parent')
+      .getOne();
+  }
+
+  async findOneByIdWithChild(id: string) {
+    const child = await this._repository
+      .createQueryBuilder('task')
+      .where('task.parent_id = :id', { id })
+      .getOne();
+
+    const parent = await this._repository
+      .createQueryBuilder('task')
+      .where('task.id = :id', { id })
+      .getOne();
+
+    parent.child = child;
+    return parent;
+  }
 }

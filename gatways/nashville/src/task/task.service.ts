@@ -46,6 +46,32 @@ export class TaskService implements OnModuleInit {
     }
   }
 
+  async findOneWithParent(id: string): Promise<task.Task> {
+    const observable = this.taskServiceClient.findOneWithParent({
+      id: id,
+    });
+
+    try {
+      const res = await firstValueFrom(observable);
+      return res;
+    } catch (_) {
+      throw new NotFoundException('task not found');
+    }
+  }
+
+  async findOneWithChild(id: string): Promise<task.Task> {
+    const observable = this.taskServiceClient.findOneWithChild({
+      id: id,
+    });
+
+    try {
+      const res = await firstValueFrom(observable);
+      return res;
+    } catch (_) {
+      throw new NotFoundException('task not found');
+    }
+  }
+
   create(taskCreateRequestDto: TaskCreateRequestDto): Observable<task.Task> {
     return this.taskServiceClient.create({
       ...taskCreateRequestDto,

@@ -29,6 +29,16 @@ export class TaskController {
     return this.taskService.findOne(id);
   }
 
+  @Get(':id/child')
+  getWithChild(@Param('id', ParseUUIDPipe) id: string) {
+    return this.taskService.findOneWithChild(id);
+  }
+
+  @Get(':id/parent')
+  getWithParent(@Param('id', ParseUUIDPipe) id: string) {
+    return this.taskService.findOneWithParent(id);
+  }
+
   @Post()
   create(
     @Body() taskCreateRequestDto: TaskCreateRequestDto,

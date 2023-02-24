@@ -1,4 +1,5 @@
 syntax = "proto3";
+// import "google/protobuf/timestamp.proto";
 
 package task;
 
@@ -6,6 +7,10 @@ service TaskService {
   rpc Create(CreateTaskRequest) returns (Task);
 
   rpc FindOne(FindOneRequest) returns (Task);
+  
+  rpc FindOneWithParent(FindOneRequest) returns (TaskWithParent);
+  
+  rpc FindOneWithChild(FindOneRequest) returns (TaskWithChild);
 
   rpc FindAll(FindAllRequest) returns (FindAllResponse);
 
@@ -63,4 +68,18 @@ message FindAllResponse{
   int32 perPage = 4;
   repeated string availableSort = 5;
   repeated Task data =7;
+}
+
+message TaskWithParent {
+  required string id = 1;
+  required string title = 2;
+  required string description = 3;
+  optional Task parent = 4;
+}
+
+message TaskWithChild {
+  required string id = 1;
+  required string title = 2;
+  required string description = 3;
+  optional Task child = 4;
 }

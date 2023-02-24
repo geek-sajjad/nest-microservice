@@ -7,6 +7,13 @@ import {
   IDatabaseSoftDeleteOptions,
   IDatabaseRestoreOptions,
 } from 'src/common/database/interfaces/database.interface';
+import {
+  DATA_INSERTED_INTO_DATABASE,
+  DATA_DELETED_INTO_DATABASE,
+  DATA_INQUIRED_FROM_DATABASE,
+  DATA_UPDATED_INTO_DATABASE,
+} from 'src/modules/logger/constants/logger.events.constant';
+import { LoggerService } from 'src/modules/logger/services/logger.default.service';
 import { QueryRunner, Repository } from 'typeorm';
 import { CreateTaskDto } from '../dtos/create-task.dto';
 import { UpdateTaskDto } from '../dtos/update-task.dto';
@@ -16,12 +23,16 @@ import { TaskRepository } from '../repository/repositories/task.repository';
 
 @Injectable()
 export class TaskService implements ITaskService {
-  constructor(private readonly taskRepository: TaskRepository) {}
+  constructor(
+    private readonly taskRepository: TaskRepository,
+    private readonly loggerService: LoggerService,
+  ) {}
 
   findAll(
     find?: Record<string, any> | Record<string, any>[],
     options?: IDatabaseFindAllOptions<QueryRunner>,
   ): Promise<TaskEntity[]> {
+    this.loggerService.logger('no message', DATA_INQUIRED_FROM_DATABASE);
     return this.taskRepository.findAll(find, options);
   }
 
@@ -29,14 +40,19 @@ export class TaskService implements ITaskService {
     id: string,
     options?: IDatabaseFindAllOptions<QueryRunner>,
   ): Promise<TaskEntity> {
+    this.loggerService.logger('no message', DATA_INQUIRED_FROM_DATABASE);
     return this.taskRepository.findOneById(id, options);
   }
 
   findOneByIdWithParent(id: string) {
+    this.loggerService.logger('no message', DATA_INQUIRED_FROM_DATABASE);
+
     return this.taskRepository.findOneByIdWithParent(id);
   }
 
   async findOneByIdWithChild(id: string) {
+    this.loggerService.logger('no message', DATA_INQUIRED_FROM_DATABASE);
+
     return this.taskRepository.findOneByIdWithChild(id);
   }
 
@@ -44,6 +60,8 @@ export class TaskService implements ITaskService {
     find: Record<string, any>,
     options?: IDatabaseFindAllOptions<QueryRunner>,
   ): Promise<TaskEntity> {
+    this.loggerService.logger('no message', DATA_INQUIRED_FROM_DATABASE);
+
     return this.taskRepository.findOne(find, options);
   }
 
@@ -58,7 +76,9 @@ export class TaskService implements ITaskService {
     data: CreateTaskDto,
     options?: IDatabaseCreateOptions<QueryRunner>,
   ): Promise<TaskEntity> {
-    // add limit to how deep the graph can grow
+    this.loggerService.logger('no message', DATA_INSERTED_INTO_DATABASE);
+
+    // TODO add limit to how deep the graph can grow
     return this.taskRepository.create<CreateTaskDto>(data, options);
   }
 
@@ -67,6 +87,8 @@ export class TaskService implements ITaskService {
     data: UpdateTaskDto,
     options?: IDatabaseUpdateOptions<QueryRunner>,
   ): Promise<TaskEntity> {
+    this.loggerService.logger('no message', DATA_UPDATED_INTO_DATABASE);
+
     return this.taskRepository.updateOneById<UpdateTaskDto>(id, data, options);
   }
 
@@ -74,6 +96,8 @@ export class TaskService implements ITaskService {
     id: string,
     options?: IDatabaseDeleteOptions<QueryRunner>,
   ): Promise<TaskEntity> {
+    this.loggerService.logger('no message', DATA_DELETED_INTO_DATABASE);
+
     return this.taskRepository.deleteOneById(id, options);
   }
 
@@ -81,6 +105,8 @@ export class TaskService implements ITaskService {
     id: string,
     options?: IDatabaseSoftDeleteOptions<QueryRunner>,
   ): Promise<TaskEntity> {
+    this.loggerService.logger('no message', DATA_DELETED_INTO_DATABASE);
+
     return this.taskRepository.softDeleteOneById(id, options);
   }
 

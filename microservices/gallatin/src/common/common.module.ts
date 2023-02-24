@@ -6,6 +6,10 @@ import { DatabaseOptionsModule } from './database/database.options.module';
 import { DatabaseOptionsService } from './database/services/database.options.service';
 import { PaginationModule } from './pagination/pagination.module';
 import * as Joi from 'joi';
+import { ClientsModule } from '@nestjs/microservices';
+import { RabbitmqOptionsModule } from './rabbitmq/rabbitmq.options.module';
+import { RabbitMqOptionsService } from './rabbitmq/services/rabbitmq.options.service';
+import { RABBITMQ_SERVICE_NAME } from './rabbitmq/constants/rabbitmq.constant';
 @Module({
   imports: [
     ConfigModule.forRoot({
@@ -18,6 +22,12 @@ import * as Joi from 'joi';
           password: process?.env.DATABASE_PASSWORD,
           debug: process.env.DATABASE_DEBUG === 'true',
           options: process.env?.DATABASE_OPTIONS,
+        })),
+
+        registerAs('rabbitmq', () => ({
+          url: process.env?.RABBITMQ_URL ?? 'amqp://localhost:5672',
+          queue: process.env?.RABBITMQ_QUEUE ?? 'loggs_queue',
+          durable: process.env?.RABBITMQ_DURABLE ?? false,
         })),
       ],
       isGlobal: true,
@@ -39,6 +49,10 @@ import * as Joi from 'joi';
         DATABASE_PASSWORD: Joi.string().allow(null, '').optional(),
         DATABASE_DEBUG: Joi.boolean().default(false).required(),
         DATABASE_OPTIONS: Joi.string().allow(null, '').optional(),
+
+        RABBITMQ_URL: Joi.string().default('amqp://localhost:5672').required(),
+        RABBITMQ_QUEUE: Joi.string().default('loggs_queue').required(),
+        RABBITMQ_DURABLE: Joi.string().default(false).required(),
       }),
       validationOptions: {
         allowUnknown: true,
@@ -55,7 +69,5 @@ import * as Joi from 'joi';
     }),
     PaginationModule,
   ],
-  providers: [],
-  controllers: [],
 })
 export class CommonModule {}

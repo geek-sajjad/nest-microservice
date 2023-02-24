@@ -1,0 +1,1 @@
+export const RABBITMQ_SERVICE_NAME = 'RABBIT_SERVICE';

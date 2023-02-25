@@ -4,22 +4,22 @@ import { EventPattern } from '@nestjs/microservices';
 @Controller()
 export class LoggerController {
   @EventPattern('DATA_INSERTED')
-  handleDataInserted() {
+  handleDataInserted(data: Record<string, unknown>) {
     console.log('logging... handle data inserted');
   }
 
   @EventPattern('DATA_UPDATED')
-  handleDataUpdated() {
+  handleDataUpdated(data: Record<string, unknown>) {
     console.log('logging... handle data updated');
   }
 
   @EventPattern('DATA_DELETED')
-  handleDataDeleted() {
+  handleDataDeleted(data: Record<string, unknown>) {
     console.log('logging... handle data deleted');
   }
 
   @EventPattern('DATA_INQUIRED')
-  handleDataInquired() {
+  handleDataInquired(data: Record<string, unknown>) {
     console.log('logging... handle data inquired');
   }
 }

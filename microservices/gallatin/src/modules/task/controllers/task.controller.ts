@@ -116,7 +116,7 @@ export class TaskController {
 
     const totalData: number = await this.taskService.getTotal({});
 
-    const totalPage: number = await this.paginationService.totalPage(
+    const totalPage: number = this.paginationService.totalPage(
       totalData,
       perPage,
     );

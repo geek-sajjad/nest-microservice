@@ -1,7 +1,7 @@
 export interface IPaginationService {
   skip(page: number, perPage: number): Promise<number>;
 
-  totalPage(totalData: number, limit: number): Promise<number>;
+  totalPage(totalData: number, limit: number): number;
 
   skipWithoutMax(page: number, perPage: number): Promise<number>;
 
